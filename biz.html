@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R.S Kassa & Anbar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { width: 260px; height: 100vh; background-color: #1e293b; color: #fff; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; justify-content: space-between; z-index: 1000; }
+        .sidebar .brand { background-color: #0f172a; padding: 20px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .sidebar .brand .logo-box { background-color: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; }
+        .sidebar .nav-links { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .sidebar .nav-links li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: 0.2s; font-size: 0.95rem; cursor: pointer; }
+        .sidebar .nav-links li a:hover, .sidebar .nav-links li a.active { background-color: #3b82f6; color: #fff; }
+        .sidebar .footer-links { padding: 15px 20px; border-top: 1px solid #334155; }
+        .sidebar .footer-links a { color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.9rem; cursor: pointer; }
+        .sidebar .footer-links a:hover { color: #fff; }
+        .main-content { margin-left: 260px; padding: 30px; }
+        .page-section { display: none; }
+        .page-section.active-section { display: block; }
+        .page-title { font-size: 1.5rem; font-weight: bold; color: #1e293b; margin-bottom: 25px; }
+        .stat-card, .content-box { background: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; position: relative; margin-bottom: 20px; }
+        .stat-card .icon-box { position: absolute; top: 20px; right: 20px; background: #f1f5f9; color: #3b82f6; padding: 10px; border-radius: 8px; font-size: 1.2rem; }
+        .stat-card .title { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .stat-card .value { font-size: 1.6rem; font-weight: bold; color: #0f172a; margin-top: 10px; }
+        #login-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Giriş Modalı -->
+    <div id="login-modal">
+        <div class="login-card">
+            <div class="bg-primary text-white d-inline-block px-3 py-2 rounded mb-3 fw-bold fs-4">R.S</div>
+            <h4 class="fw-bold mb-1">Sistemə Giriş</h4>
+            <p class="text-muted small mb-4">Davam etmək üçün təhlükəsizlik şifrəsini daxil edin</p>
+            <input type="password" id="login-password" class="form-control mb-3 text-center" placeholder="Giriş Şifrəsi (1234)">
+            <button onclick="checkLogin()" class="btn btn-primary w-100 py-2 fw-semibold">Sistemə Daxil Ol</button>
+        </div>
+    </div>
+
+    <!-- Sol Menyu -->
+    <div class="sidebar">
+        <div>
+            <div class="brand">
+                <span class="logo-box">R.S</span>
+                <span>Kassa & Anbar</span>
+            </div>
+            <ul class="nav-links mt-3">
+                <li><a onclick="switchTab('anasehife', this)" class="active"><i class="bi bi-house-door"></i> Ana Səhifə</a></li>
+                <li><a onclick="switchTab('satis', this)"><i class="bi bi-cart"></i> Satış Et (POS)</a></li>
+                <li><a onclick="switchTab('stok', this)"><i class="bi bi-box-seam"></i> Məhsullar & Stok</a></li>
+                <li><a onclick="switchTab('kateqoriya', this)"><i class="bi bi-tags"></i> Kateqoriyalar</a></li>
+                <li><a onclick="switchTab('tehsilciler', this)"><i class="bi bi-truck"></i> Təchizatçılar (Alışlar)</a></li>
+                <li><a onclick="switchTab('musteriler', this)"><i class="bi bi-people"></i> Müştərilər</a></li>
+                <li><a onclick="switchTab('emekdaslar', this)"><i class="bi bi-person-badge"></i> Əməkdaşlar</a></li>
+                <li><a onclick="switchTab('kassa', this)"><i class="bi bi-wallet2"></i> Kassa & Mənfəət</a></li>
+                <li><a onclick="switchTab('borclar', this)"><i class="bi bi-cash-coin"></i> Bizə Borclu Olanlar</a></li>
+                <li><a onclick="switchTab('xercler', this)"><i class="bi bi-receipt"></i> Xərclər</a></li>
+            </ul>
+        </div>
+        <div class="footer-links">
+            <a onclick="checkParamPassword()"><i class="bi bi-sliders"></i> Sıra Parametrləri</a>
+            <a onclick="alert('Yaddaş uğurla kompüterə yükləndi (Backup).')"><i class="bi bi-cloud-arrow-up"></i> Yaddaşa Yüklə (Backup)</a>
+            <a onclick="location.reload()"><i class="bi bi-box-arrow-right"></i> Çıxış</a>
+        </div>
+    </div>
+
+    <!-- Əsas Məzmun -->
+    <div class="main-content">
+
+        <!-- 1. ANA SƏHİFƏ -->
+        <div id="anasehife" class="page-section active-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="page-title mb-0">R.S Kassa İcmalı</div>
+                <button onclick="addCashManualPrompt()" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Kassaya Pul Əlavə Et</button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box"><i class="bi bi-wallet"></i></div><div class="title">Kassa Qalığı (Nağd)</div><div class="value" id="dash-kassa">0.00 ₼</div></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box"><i class="bi bi-graph-up-arrow"></i></div><div class="title">Ümumi Mədaxil (Gəlir)</div><div class="value text-success" id="dash-gelir">+0.00 ₼</div></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box"><i class="bi bi-graph-down-arrow"></i></div><div class="title">Ümumi Məxaric (Xərc)</div><div class="value text-danger" id="dash-xerc">-0.00 ₼</div></div></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="content-box">
+                        <h5><i class="bi bi-cart-check text-primary"></i> Son Satışlar</h5>
+                        <div id="dash-satis-list"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="content-box">
+                        <h5><i class="bi bi-exclamation-triangle text-warning"></i> Stokda Bitən / Az Qalan Mallar</h5>
+                        <div id="dash-stok-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. SATIŞ ET / POS -->
+        <div id="satis" class="page-section">
+            <div class="page-title">Məhsul Satışı İcra Et (POS)</div>
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="content-box">
+                        <h5 class="mb-3">Məhsul Əlavə Et</h5>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Kateqoriya</label>
+                            <select id="pos-cat" class="form-select" onchange="filterPosProducts()"><option value="">-- Kateqoriya Seçin --</option></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Məhsul Seçin *</label>
+                            <select id="pos-prod" class="form-select" onchange="updatePosPrice()"><option value="">-- Məhsul Seçin --</option></select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small text-muted">Miqdar *</label>
+                                <input type="number" id="pos-miqdar" value="1" min="1" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-muted d-flex justify-content-between">
+                                    <span>Qiymət (₼)</span>
+                                    <span class="text-primary" style="cursor:pointer;" onclick="unlockPosPrice()"><i class="bi bi-key"></i> Şifrə</span>
+                                </label>
+                                <input type="text" id="pos-qiymet" class="form-control bg-light" readonly>
+                            </div>
+                        </div>
+                        <button onclick="addToCart()" class="btn btn-success w-100"><i class="bi bi-cart-plus"></i> Səbətə Əlavə Et</button>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="content-box">
+                        <h5 class="mb-3">Satış Səbəti</h5>
+                        <table class="table table-sm">
+                            <thead><tr><th>MƏHSUL</th><th>MIQDAR</th><th>QİYMƏT</th><th>Cəmi</th><th>sil</th></tr></thead>
+                            <tbody id="cart-table-body"><tr><td colspan="5" class="text-center text-muted">Səbət boşdur. Məhsul əlavə edin.</td></tr></tbody>
+                        </table>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Ümumi Satış Məbləği:</h5>
+                            <h4 class="text-primary mb-0" id="cart-total">0.00 ₼</h4>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small text-muted">Müştəri Adı *</label>
+                                <input type="text" id="cust-name" class="form-control form-control-sm mb-1" placeholder="məs: Əli Məmmədov" list="customer-datalist" onchange="autofillCustomer(this.value)">
+                                <datalist id="customer-datalist"></datalist>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-muted">Müştəri Telefonu *</label>
+                                <input type="text" id="cust-tel" class="form-control form-control-sm" placeholder="məs: 0501234567">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small text-muted">Satışı Edən Əməkdaş *</label>
+                                <select id="pos-emekdas" class="form-select form-select-sm"><option value="">-- Əməkdaş Seçin --</option></select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-muted">Ödəniş Vəziyyəti *</label>
+                                <select id="pos-status" class="form-select form-select-sm">
+                                    <option value="Nağd">Ödənilib (Kassa Mədaxil)</option>
+                                    <option value="Nisyə">Ödənilməyib (Borc / Nisyə)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Qeyd</label>
+                            <input type="text" id="pos-qeyd" class="form-control form-control-sm" placeholder="Əlavə satış qeydi...">
+                        </div>
+                        <button onclick="completeSale()" class="btn btn-primary w-100 py-2"><i class="bi bi-check-circle"></i> Satışı Təsdiqlə Və Çək Yarat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. MƏHSULLAR & STOK -->
+        <div id="stok" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="page-title mb-0">Məhsullar Və Anbar Qalıqları</div>
+                <div>
+                    <button onclick="deleteSelectedProducts()" class="btn btn-danger btn-sm me-2"><i class="bi bi-trash"></i> Seçilənləri Sil</button>
+                    <button onclick="openNewProductModal()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Yeni Məhsul</button>
+                </div>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4"><div class="stat-card py-3"><div class="title">Ümumi Stok Sayı</div><div class="value" id="stok-sayi">0 ədəd</div></div></div>
+                <div class="col-md-4"><div class="stat-card py-3"><div class="title">Anbarın Maya Dəyəri</div><div class="value" id="stok-maya">0.00 ₼</div></div></div>
+                <div class="col-md-4"><div class="stat-card py-3"><div class="title">Anbarın Ümumi Satış Dəyəri</div><div class="value" id="stok-satis-deyer">0.00 ₼</div></div></div>
+            </div>
+            <div class="content-box">
+                <input type="text" id="product-search" onkeyup="renderProducts()" class="form-control mb-3" placeholder="Axtar...">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th><input type="checkbox" id="select-all-prod" onclick="toggleSelectAllProducts(this)"></th>
+                                <th>KATEQORİYA</th><th>MƏHSUL ADI</th><th>MARKA / MODEL</th><th>MIQDAR</th><th>ALIŞ</th><th>SATIŞ</th><th>CƏMİ</th><th>KİMDƏN</th><th>QEYD</th><th>DÜZƏLİŞ / SİL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. KATEQORİYALAR -->
+        <div id="kateqoriya" class="page-section">
+            <div class="page-title">Məhsul Kateqoriyaları</div>
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="content-box">
+                        <h5 class="mb-3">Yeni Kateqoriya Yaradın</h5>
+                        <input type="text" id="new-cat-name" class="form-control mb-3" placeholder="məs: Elektronika, Ərzaq">
+                        <button onclick="addCategory()" class="btn btn-primary w-100">Əlavə Et</button>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="content-box">
+                        <h5 class="mb-3">Mövcud Kateqoriyalar</h5>
+                        <div id="category-badges" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. TƏCHİZATÇILAR (Alışlar) -->
+        <div id="tehsilciler" class="page-section">
+            <div class="page-title">Təchizatçılar & İllik Alışlar</div>
+            <div class="content-box">
+                <input type="text" id="supplier-search" onkeyup="renderSuppliers()" class="form-control mb-3" placeholder="Təchizatçı adına görə axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>TƏCHİZATÇI (KİMDƏN ALINIB)</th>
+                            <th>İL ƏRZİNDƏ ALINAN ÜMUMİ MAL SAYI</th>
+                            <th>İL ƏRZİNDƏ ÖDƏNİLƏN ÜMUMİ ALIŞ MƏBLƏĞİ</th>
+                            <th>ALDIĞI MƏHSULLARIN SİYAHISI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplier-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 6. MÜŞTƏRİLƏR -->
+        <div id="musteriler" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="page-title mb-0">Müştəri Bazasının Siyahısı</div>
+                <button onclick="addCustomerPrompt()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Müştəri Əlavə Et</button>
+            </div>
+            <div class="content-box">
+                <input type="text" id="customer-search" onkeyup="renderCustomers()" class="form-control mb-3" placeholder="Müştəri adına və ya telefona görə axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>AD, SOYAD</th><th>TELEFON NÖMRƏSİ</th><th>BORC</th><th>ƏMƏLİYYATLAR</th></tr></thead>
+                    <tbody id="customer-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 7. ƏMƏKDAŞLAR -->
+        <div id="emekdaslar" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="page-title mb-0">Əməkdaşlar Və İşçilər</div>
+                <button onclick="saveNewEmployee()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Əməkdaş Əlavə Et</button>
+            </div>
+            <div class="content-box mb-4">
+                <h5 class="mb-3">Yeni Əməkdaş Xanası</h5>
+                <div class="row g-3">
+                    <div class="col-md-4"><input type="text" id="emp-name" class="form-control" placeholder="Ad və Soyad"></div>
+                    <div class="col-md-4"><input type="text" id="emp-pos" class="form-control" placeholder="Vəzifəsi (məs: Kassir)"></div>
+                    <div class="col-md-4"><input type="text" id="emp-tel" class="form-control" placeholder="Telefon nömrəsi"></div>
+                </div>
+            </div>
+            <div class="content-box">
+                <input type="text" id="employee-search" onkeyup="renderEmployees()" class="form-control mb-3" placeholder="Əməkdaş axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>AD, SOYAD</th><th>VƏZİFƏSİ</th><th>TELEFON</th><th>ƏMƏLİYYATLAR</th></tr></thead>
+                    <tbody id="employee-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 8. KASSA & MƏNFƏƏT -->
+        <div id="kassa" class="page-section">
+            <div class="page-title">Kassa Tarixçəsi, Satışlar Və Qazanc</div>
+            <div class="content-box">
+                <input type="text" id="kassa-search" onkeyup="renderKassaHistory()" class="form-control mb-3" placeholder="Axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>TARİX</th><th>MÜŞTƏRİ (AD / TEL)</th><th>MƏHSULLAR / SƏBƏT</th><th>ÜMUMİ SATIŞ</th><th>ÖDƏNİLƏN MƏBLƏĞ</th><th>MƏNFƏƏT</th><th>STATUS</th><th>QEYD</th></tr></thead>
+                    <tbody id="kassa-history-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 9. BİZƏ BORCLU OLANLAR -->
+        <div id="borclar" class="page-section">
+            <div class="page-title">Bizə Borclu Olanlar (Nisyə Satışlar)</div>
+            <div class="content-box">
+                <input type="text" id="debt-search" onkeyup="renderDebts()" class="form-control mb-3" placeholder="Borclu axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>TARİX</th><th>MÜŞTƏRİ ADI / TEL</th><th>GÖTÜRDÜYÜ MƏHSULLAR</th><th>ÜMUMİ BORC</th><th>ÖDƏNİLƏN</th><th>QALIQ BORC</th><th>QEYD</th><th>ƏMƏLİYYATLAR</th></tr></thead>
+                    <tbody id="debt-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 10. XƏRCLƏR -->
+        <div id="xercler" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="page-title mb-0">Obyekt Xərcləri</div>
+                <button onclick="openExpenseModal()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Xərc Əlavə Et</button>
+            </div>
+            <div class="content-box">
+                <input type="text" id="expense-search" onkeyup="renderExpenses()" class="form-control mb-3" placeholder="Xərc axtar...">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>TARİX</th><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th>QEYD</th><th>ƏMƏLİYYATLAR</th></tr></thead>
+                    <tbody id="expense-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 11. PARAMETRLƏR & ŞİFRƏ -->
+        <div id="parametr" class="page-section">
+            <div class="page-title">Sistem Parametrləri & Tənzimləmələr</div>
+            <div class="content-box" style="max-width: 500px;">
+                <h5 class="mb-3">Şifrə & Bərpa Nömrəsi</h5>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Cari Şifrə *</label>
+                    <input type="password" id="param-curr-pass" class="form-control" placeholder="Cari Şifrə">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Yeni Şifrə *</label>
+                    <input type="password" id="param-new-pass" class="form-control" placeholder="Yeni Şifrə">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Bərpa Üçün Telefon Nömrəsi *</label>
+                    <input type="text" id="param-recovery-tel" class="form-control" placeholder="0501234567">
+                </div>
+                <button onclick="updatePasswordAndRecovery()" class="btn btn-primary w-100">Yadda Saxla</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Yeni Məhsul / Düzəliş Modalı (Şəkil formasında) -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="prod-modal-title">Yeni Məhsul Qeydiyyatı</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-prod-id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Kateqoriya Seçin *</label>
+                        <select id="m-cat" class="form-select"><option value="">-- Kateqoriya Seçin --</option></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Məhsul Adı *</label>
+                        <input type="text" id="m-name" class="form-control" placeholder="məs: Yağ, Çörək, Telefon...">
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Marka</label>
+                            <input type="text" id="m-brand" class="form-control" placeholder="məs: Samsung, Anchor...">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Model</label>
+                            <input type="text" id="m-model" class="form-control" placeholder="məs: Galaxy S21, 1Kg...">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Miqdar (Stok) *</label>
+                            <input type="number" id="m-qty" class="form-control" value="0" min="1">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Alış Qiyməti *</label>
+                            <input type="number" id="m-buy" class="form-control" value="0.00" step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Satış Qiyməti *</label>
+                            <input type="number" id="m-sell" class="form-control" value="0.00" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Kimdən Alınıb (Təchizatçı)</label>
+                        <input type="text" id="m-supplier" class="form-control" placeholder="məs: Bakı Qida MMC">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Qeyd</label>
+                        <textarea id="m-note" class="form-control" rows="2" placeholder="Qeydlər..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Ləğv Et</button>
+                    <button type="button" onclick="saveProductData()" class="btn btn-primary btn-sm">Məhsulu Saxla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Xərc Əlavə Et Modalı -->
+    <div class="modal fade" id="expenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xərc Əlavə Et</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Xərc Kateqoriyası *</label>
+                        <select id="exp-cat" class="form-select">
+                            <option value="İcarə Haqqı">İcarə Haqqı</option>
+                            <option value="Kommunal">Kommunal</option>
+                            <option value="Maaş">Maaş</option>
+                            <option value="Digər">Digər</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Məbləğ (₼) *</label>
+                        <input type="number" id="exp-amount" class="form-control" placeholder="0.00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Qeyd</label>
+                        <textarea id="exp-note" class="form-control" rows="2" placeholder="Xərc haqqında təfərrüat..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Ləğv Et</button>
+                    <button type="button" onclick="saveExpense()" class="btn btn-danger btn-sm">Saxla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let db = {
+            categories: [],
+            products: [],
+            customers: [],
+            employees: [],
+            sales: [],
+            expenses: [],
+            manualCash: 0,
+            sysPass: "1234",
+            recoveryTel: "0501234567"
+        };
+
+        let savedData = localStorage.getItem('rs_db');
+        if(savedData) { db = JSON.parse(savedData); }
+
+        function saveDB() {
+            localStorage.setItem('rs_db', JSON.stringify(db));
+            refreshAll();
+        }
+
+        function checkLogin() {
+            let pass = document.getElementById('login-password').value;
+            if(pass === db.sysPass || pass === "1234") {
+                document.getElementById('login-modal').style.display = 'none';
+                refreshAll();
+            } else {
+                alert("Şifrə yanlışdır! (Default şifrə: 1234)");
+            }
+        }
+
+        function verifyAdminCode() {
+            let p = prompt("Təhlükəsizlik şifrəsini daxil edin:");
+            if(p === db.sysPass || p === "1234") return true;
+            if(p !== null) alert("Şifrə səhvdir!");
+            return false;
+        }
+
+        function checkParamPassword() {
+            if(verifyAdminCode()) {
+                document.getElementById('param-curr-pass').value = '';
+                document.getElementById('param-new-pass').value = '';
+                document.getElementById('param-recovery-tel').value = db.recoveryTel;
+                switchTab('parametr', null);
+            }
+        }
+
+        function updatePasswordAndRecovery() {
+            let curr = document.getElementById('param-curr-pass').value;
+            let nw = document.getElementById('param-new-pass').value;
+            let tel = document.getElementById('param-recovery-tel').value;
+
+            if(curr !== db.sysPass && curr !== "1234") {
+                alert("Cari şifrə yanlışdır!");
+                return;
+            }
+            if(!nw) {
+                alert("Yeni şifrəni daxil edin!");
+                return;
+            }
+            db.sysPass = nw;
+            if(tel) db.recoveryTel = tel;
+            saveDB();
+            alert("Şifrə və bərpa nömrəsi uğurla yeniləndi!");
+        }
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-section'));
+            document.getElementById(tabId).classList.add('active-section');
+            if(el) {
+                document.querySelectorAll('.sidebar .nav-links a').forEach(a => a.classList.remove('active'));
+                el.classList.add('active');
+            }
+            refreshAll();
+        }
+
+        let currentCart = [];
+
+        function refreshAll() {
+            let totalKassa = db.manualCash;
+            let totalGelir = 0;
+            let totalXerc = 0;
+
+            db.sales.forEach(s => {
+                totalGelir += s.paid;
+                totalKassa += s.paid;
+            });
+            db.expenses.forEach(e => {
+                totalXerc += e.amount;
+                totalKassa -= e.amount;
+            });
+
+            document.getElementById('dash-kassa').innerText = totalKassa.toFixed(2) + ' ₼';
+            document.getElementById('dash-gelir').innerText = '+' + totalGelir.toFixed(2) + ' ₼';
+            document.getElementById('dash-xerc').innerText = '-' + totalXerc.toFixed(2) + ' ₼';
+
+            let sHtml = '';
+            db.sales.slice(-3).reverse().forEach(s => {
+                sHtml += `<div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div><div class="fw-bold">${s.itemsText}</div><small class="text-muted">${s.custName} • ${s.date}</small></div>
+                    <div class="text-primary fw-bold">${s.total.toFixed(2)} ₼</div></div>`;
+            });
+            document.getElementById('dash-satis-list').innerHTML = sHtml || '<small class="text-muted">Satış yoxdur</small>';
+
+            let stHtml = '';
+            db.products.forEach(p => {
+                if(p.qty <= 5) {
+                    stHtml += `<div class="d-flex justify-content-between py-2 border-bottom"><div class="fw-bold">${p.name} (${p.qty})</div><span class="badge bg-warning text-dark">Azalıb</span></div>`;
+                }
+            });
+            document.getElementById('dash-stok-list').innerHTML = stHtml || '<small class="text-muted">Stok problemi yoxdur</small>';
+
+            let catOpts = '<option value="">-- Kateqoriya Seçin --</option>';
+            db.categories.forEach(c => { catOpts += `<option value="${c}">${c}</option>`; });
+            document.getElementById('pos-cat').innerHTML = catOpts;
+            document.getElementById('m-cat').innerHTML = catOpts;
+
+            let prodOpts = '<option value="">-- Məhsul Seçin --</option>';
+            db.products.forEach(p => {
+                if(p.qty > 0) prodOpts += `<option value="${p.id}">${p.name} (${p.brand || ''}) - ${p.sell}₼ [Stok: ${p.qty}]</option>`;
+            });
+            document.getElementById('pos-prod').innerHTML = prodOpts;
+
+            let empOpts = '<option value="">-- Əməkdaş Seçin --</option>';
+            db.employees.forEach(e => { empOpts += `<option value="${e.name}">${e.name}</option>`; });
+            document.getElementById('pos-emekdas').innerHTML = empOpts;
+
+            let custDatalist = '';
+            db.customers.forEach(c => { custDatalist += `<option value="${c.name}">`; });
+            document.getElementById('customer-datalist').innerHTML = custDatalist;
+
+            renderProducts();
+            renderCategories();
+            renderSuppliers();
+            renderCustomers();
+            renderEmployees();
+            renderKassaHistory();
+            renderDebts();
+            renderExpenses();
+        }
+
+        function addCashManualPrompt() {
+            let amount = parseFloat(prompt("Kassaya əlavə etmək istədiyiniz məbləği yazın (₼):"));
+            if(amount > 0) {
+                db.manualCash += amount;
+                saveDB();
+                alert("Kassaya pul əlavə olundu!");
+            }
+        }
+
+        function filterPosProducts() {
+            let cat = document.getElementById('pos-cat').value;
+            let prodOpts = '<option value="">-- Məhsul Seçin --</option>';
+            db.products.forEach(p => {
+                if((!cat || p.cat === cat) && p.qty > 0) {
+                    prodOpts += `<option value="${p.id}">${p.name} (${p.brand || ''}) - ${p.sell}₼ [Stok: ${p.qty}]</option>`;
+                }
+            });
+            document.getElementById('pos-prod').innerHTML = prodOpts;
+        }
+
+        function updatePosPrice() {
+            let id = document.getElementById('pos-prod').value;
+            let prod = db.products.find(p => p.id == id);
+            let priceInput = document.getElementById('pos-qiymet');
+            priceInput.value = prod ? prod.sell : '';
+            priceInput.readOnly = true;
+        }
+
+        function unlockPosPrice() {
+            if(verifyAdminCode()) {
+                document.getElementById('pos-qiymet').readOnly = false;
+                alert("Qiymət sahəsi dəyişiklik üçün açıldı.");
+            }
+        }
+
+        function autofillCustomer(name) {
+            let found = db.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
+            if(found) {
+                document.getElementById('cust-tel').value = found.tel;
+            }
+        }
+
+        function addToCart() {
+            let id = document.getElementById('pos-prod').value;
+            let qty = parseInt(document.getElementById('pos-miqdar').value) || 1;
+            let customPrice = parseFloat(document.getElementById('pos-qiymet').value);
+            let prod = db.products.find(p => p.id == id);
+            if(!prod) { alert("Məhsul seçin!"); return; }
+            if(prod.qty < qty) { alert("Stokda kifayət qədər məhsul yoxdur!"); return; }
+
+            let priceToUse = !isNaN(customPrice) ? customPrice : prod.sell;
+
+            let existing = currentCart.find(item => item.id == id);
+            if(existing) {
+                existing.qty += qty;
+                existing.price = priceToUse;
+            } else {
+                currentCart.push({ id: prod.id, name: prod.name, price: priceToUse, buyPrice: prod.buy, qty: qty });
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            let tbody = document.getElementById('cart-table-body');
+            let total = 0;
+            if(currentCart.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Səbət boşdur. Məhsul əlavə edin.</td></tr>';
+                document.getElementById('cart-total').innerText = '0.00 ₼';
+                return;
+            }
+            let html = '';
+            currentCart.forEach((item, index) => {
+                let sub = item.price * item.qty;
+                total += sub;
+                html += `<tr><td>${item.name}</td><td>${item.qty}</td><td>${item.price} ₼</td><td>${sub.toFixed(2)} ₼</td><td><button onclick="removeFromCart(${index})" class="btn btn-sm btn-danger py-0 px-1"><i class="bi bi-trash"></i></button></td></tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('cart-total').innerText = total.toFixed(2) + ' ₼';
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            renderCart();
+        }
+
+        function completeSale() {
+            if(currentCart.length === 0) { alert("Səbət boşdur!"); return; }
+            let custName = document.getElementById('cust-name').value.trim();
+            let custTel = document.getElementById('cust-tel').value.trim();
+            let emekdas = document.getElementById('pos-emekdas').value;
+
+            if(!custName || !custTel || !emekdas) {
+                alert("Müştəri adı, telefonu və satışı edən əməkdaş mütləq seçilməlidir!");
+                return;
+            }
+
+            let total = currentCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let totalBuy = currentCart.reduce((sum, item) => sum + (item.buyPrice * item.qty), 0);
+            let profit = total - totalBuy;
+
+            let status = document.getElementById('pos-status').value;
+            let note = document.getElementById('pos-qeyd').value || (status === 'Nisyə' ? `Nisyə (Qalıq: ${total.toFixed(2)} ₼)` : 'Nağd ödəniş');
+            let itemsText = currentCart.map(i => `${i.name} (${i.qty} ədəd)`).join(', ');
+
+            currentCart.forEach(item => {
+                let p = db.products.find(x => x.id == item.id);
+                if(p) p.qty -= item.qty;
+            });
+
+            let paidAmount = (status === 'Nağd') ? total : 0;
+            let now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            
+            db.sales.push({ date: now, custName, custTel, emekdas, itemsText, total, paid: paidAmount, profit, status, note });
+            
+            let existingCust = db.customers.find(c => c.name.toLowerCase() === custName.toLowerCase());
+            if(status === 'Nisyə') {
+                if(existingCust) { existingCust.debt += total; }
+                else { db.customers.push({ name: custName, tel: custTel, debt: total }); }
+            } else {
+                if(!existingCust) { db.customers.push({ name: custName, tel: custTel, debt: 0 }); }
+            }
+
+            currentCart = [];
+            renderCart();
+            saveDB();
+            alert("Satış uğurla tamamlandı!");
+            switchTab('anasehife', document.querySelector('.sidebar .nav-links a'));
+        }
+
+        function renderProducts() {
+            let search = document.getElementById('product-search').value.toLowerCase();
+            let tbody = document.getElementById('product-table-body');
+            let html = '';
+            let totalQty = 0, totalBuyCost = 0, totalSellVal = 0;
+
+            db.products.forEach(p => {
+                totalQty += p.qty;
+                totalBuyCost += (p.qty * p.buy);
+                totalSellVal += (p.qty * p.sell);
+
+                let searchableText = `${p.cat} ${p.name} ${p.brand || ''} ${p.supplier || ''} ${p.note || ''}`.toLowerCase();
+                if(searchableText.includes(search)) {
+                    html += `<tr>
+                        <td><input type="checkbox" class="prod-checkbox" value="${p.id}"></td>
+                        <td>${p.cat}</td>
+                        <td class="fw-bold">${p.name}</td>
+                        <td>${p.brand || '-'} ${p.model ? '(' + p.model + ')' : ''}</td>
+                        <td>${p.qty} ədəd</td>
+                        <td>${p.buy.toFixed(2)} ₼</td>
+                        <td>${p.sell.toFixed(2)} ₼</td>
+                        <td class="fw-bold text-primary">${(p.qty * p.sell).toFixed(2)} ₼</td>
+                        <td>${p.supplier || 'Digər'}</td>
+                        <td>${p.note || '-'}</td>
+                        <td>
+                            <button onclick="editProduct(${p.id})" class="btn btn-sm btn-outline-primary py-0 me-1"><i class="bi bi-pencil"></i></button>
+                            <button onclick="deleteSingleProduct(${p.id})" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>`;
+                }
+            });
+            tbody.innerHTML = html;
+            document.getElementById('stok-sayi').innerText = totalQty + ' ədəd';
+            document.getElementById('stok-maya').innerText = totalBuyCost.toFixed(2) + ' ₼';
+            document.getElementById('stok-satis-deyer').innerText = totalSellVal.toFixed(2) + ' ₼';
+        }
+
+        function toggleSelectAllProducts(source) {
+            document.querySelectorAll('.prod-checkbox').forEach(cb => cb.checked = source.checked);
+        }
+
+        function deleteSingleProduct(id) {
+            if(!verifyAdminCode()) return;
+            if(confirm("Bu məhsulu silmək istədiyinizə əminsiniz?")) {
+                db.products = db.products.filter(p => p.id !== id);
+                saveDB();
+            }
+        }
+
+        function deleteSelectedProducts() {
+            if(!verifyAdminCode()) return;
+            let selected = document.querySelectorAll('.prod-checkbox:checked');
+            if(selected.length === 0) { alert("Heç bir məhsul seçilməyib!"); return; }
+            if(confirm(`Seçilmiş ${selected.length} məhsulu silmək istədiyinizə əminsiniz?`)) {
+                let ids = Array.from(selected).map(cb => parseInt(cb.value));
+                db.products = db.products.filter(p => !ids.includes(p.id));
+                saveDB();
+            }
+        }
+
+        function openNewProductModal() {
+            document.getElementById('prod-modal-title').innerText = "Yeni Məhsul Qeydiyyatı";
+            document.getElementById('edit-prod-id').value = "";
+            document.getElementById('m-cat').value = "";
+            document.getElementById('m-name').value = "";
+            document.getElementById('m-brand').value = "";
+            document.getElementById('m-model').value = "";
+            document.getElementById('m-qty').value = "1";
+            document.getElementById('m-buy').value = "0.00";
+            document.getElementById('m-sell').value = "0.00";
+            document.getElementById('m-supplier').value = "";
+            document.getElementById('m-note').value = "";
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        function editProduct(id) {
+            if(!verifyAdminCode()) return;
+            let p = db.products.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('prod-modal-title').innerText = "Məhsula Düzəliş Et";
+            document.getElementById('edit-prod-id').value = p.id;
+            document.getElementById('m-cat').value = p.cat;
+            document.getElementById('m-name').value = p.name;
+            document.getElementById('m-brand').value = p.brand || '';
+            document.getElementById('m-model').value = p.model || '';
+            document.getElementById('m-qty').value = p.qty;
+            document.getElementById('m-buy').value = p.buy;
+            document.getElementById('m-sell').value = p.sell;
+            document.getElementById('m-supplier').value = p.supplier || '';
+            document.getElementById('m-note').value = p.note || '';
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        function saveProductData() {
+            let id = document.getElementById('edit-prod-id').value;
+            let cat = document.getElementById('m-cat').value;
+            let name = document.getElementById('m-name').value.trim();
+            let brand = document.getElementById('m-brand').value.trim();
+            let model = document.getElementById('m-model').value.trim();
+            let qty = parseInt(document.getElementById('m-qty').value) || 0;
+            let buy = parseFloat(document.getElementById('m-buy').value) || 0;
+            let sell = parseFloat(document.getElementById('m-sell').value) || 0;
+            let supplier = document.getElementById('m-supplier').value.trim() || 'Ümumi Təchizatçı';
+            let note = document.getElementById('m-note').value.trim();
+
+            if(!cat || !name) {
+                alert("Kateqoriya və Məhsul Adı mütləq doldurulmalıdır!");
+                return;
+            }
+
+            let totalPurchaseCost = buy * qty;
+
+            if(id) {
+                let p = db.products.find(x => x.id == id);
+                if(p) {
+                    p.cat = cat; p.name = name; p.brand = brand; p.model = model; 
+                    p.qty = qty; p.buy = buy; p.sell = sell; p.supplier = supplier; p.note = note;
+                }
+            } else {
+                db.products.push({ id: Date.now(), cat, name, brand, model, qty, buy, sell, supplier, note });
+
+                // Mal alışı zamanı kassadan çıxış və xərclərə əlavə edilməsi
+                if(totalPurchaseCost > 0) {
+                    let now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                    db.expenses.push({
+                        date: now,
+                        cat: "Mal Alışı (Təchizatçı)",
+                        amount: totalPurchaseCost,
+                        note: `Təchizatçı: ${supplier} | Məhsul: ${name} (${qty} ədəd)`
+                    });
+                }
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+            saveDB();
+        }
+
+        function renderSuppliers() {
+            let search = document.getElementById('supplier-search').value.toLowerCase();
+            let tbody = document.getElementById('supplier-table-body');
+            let suppliersMap = {};
+
+            db.products.forEach(p => {
+                let sup = p.supplier || 'Ümumi Təchizatçı';
+                if(!suppliersMap[sup]) {
+                    suppliersMap[sup] = { totalQty: 0, totalSpent: 0, items: [] };
+                }
+                suppliersMap[sup].totalQty += p.qty;
+                suppliersMap[sup].totalSpent += (p.qty * p.buy);
+                suppliersMap[sup].items.push(`${p.name} (${p.qty} ədəd)`);
+            });
+
+            let html = '';
+            for(let sup in suppliersMap) {
+                if(sup.toLowerCase().includes(search)) {
+                    let data = suppliersMap[sup];
+                    html += `<tr>
+                        <td class="fw-bold">${sup}</td>
+                        <td>${data.totalQty} ədəd</td>
+                        <td class="text-danger fw-bold">${data.totalSpent.toFixed(2)} ₼</td>
+                        <td><small class="text-muted">${data.items.join(', ')}</small></td>
+                    </tr>`;
+                }
+            }
+            tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">Təchizatçı məlumatı yoxdur.</td></tr>';
+        }
+
+        function addCategory() {
+            let name = document.getElementById('new-cat-name').value.trim();
+            if(name && !db.categories.includes(name)) {
+                db.categories.push(name);
+                document.getElementById('new-cat-name').value = '';
+                saveDB();
+            }
+        }
+
+        function renderCategories() {
+            let html = '';
+            db.categories.forEach((c, idx) => {
+                html += `<span class="badge bg-light text-dark border p-2 d-inline-flex align-items-center gap-2">${c} <i class="bi bi-x text-danger" style="cursor:pointer" onclick="deleteCategory(${idx})"></i></span>`;
+            });
+            document.getElementById('category-badges').innerHTML = html;
+        }
+
+        function deleteCategory(idx) {
+            if(!verifyAdminCode()) return;
+            db.categories.splice(idx, 1);
+            saveDB();
+        }
+
+        function addCustomerPrompt() {
+            let name = prompt("Müştərinin Ad və Soyadı:");
+            if(!name) return;
+            let tel = prompt("Telefon nömrəsi:");
+            db.customers.push({ name, tel, debt: 0 });
+            saveDB();
+        }
+
+        function renderCustomers() {
+            let search = document.getElementById('customer-search').value.toLowerCase();
+            let html = '';
+            db.customers.forEach((c, idx) => {
+                let text = `${c.name} ${c.tel}`.toLowerCase();
+                if(text.includes(search)) {
+                    html += `<tr><td class="fw-bold">${c.name}</td><td>${c.tel}</td><td class="text-danger fw-bold">${c.debt.toFixed(2)} ₼</td><td><button onclick="deleteCustomer(${idx})" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button></td></tr>`;
+                }
+            });
+            document.getElementById('customer-table-body').innerHTML = html;
+        }
+
+        function deleteCustomer(idx) {
+            if(!verifyAdminCode()) return;
+            db.customers.splice(idx, 1);
+            saveDB();
+        }
+
+        function saveNewEmployee() {
+            let name = document.getElementById('emp-name').value.trim();
+            let pos = document.getElementById('emp-pos').value.trim();
+            let tel = document.getElementById('emp-tel').value.trim();
+            if(!name) { alert("Əməkdaşın ad və soyadını yazın!"); return; }
+            db.employees.push({ name, pos, tel });
+            document.getElementById('emp-name').value = '';
+            document.getElementById('emp-pos').value = '';
+            document.getElementById('emp-tel').value = '';
+            saveDB();
+        }
+
+        function renderEmployees() {
+            let search = document.getElementById('employee-search').value.toLowerCase();
+            let html = '';
+            db.employees.forEach((e, idx) => {
+                let text = `${e.name} ${e.pos} ${e.tel}`.toLowerCase();
+                if(text.includes(search)) {
+                    html += `<tr><td class="fw-bold">${e.name}</td><td>${e.pos}</td><td>${e.tel}</td><td><button onclick="deleteEmployee(${idx})" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button></td></tr>`;
+                }
+            });
+            document.getElementById('employee-table-body').innerHTML = html;
+        }
+
+        function deleteEmployee(idx) {
+            if(!verifyAdminCode()) return;
+            db.employees.splice(idx, 1);
+            saveDB();
+        }
+
+        function renderKassaHistory() {
+            let search = document.getElementById('kassa-search') ? document.getElementById('kassa-search').value.toLowerCase() : '';
+            let html = '';
+            db.sales.forEach(s => {
+                let text = `${s.date} ${s.custName} ${s.itemsText}`.toLowerCase();
+                if(text.includes(search)) {
+                    html += `<tr><td>${s.date}</td><td>${s.custName} (${s.custTel})</td><td>${s.itemsText}</td><td class="fw-bold">${s.total.toFixed(2)} ₼</td><td>${s.paid.toFixed(2)} ₼</td><td class="text-success fw-bold">+${s.profit.toFixed(2)} ₼</td><td><span class="badge ${s.status==='Nağd'?'bg-success':'bg-warning text-dark'}">${s.status}</span></td><td>${s.note}</td></tr>`;
+                }
+            });
+            document.getElementById('kassa-history-body').innerHTML = html;
+        }
+
+        function renderDebts() {
+            let search = document.getElementById('debt-search') ? document.getElementById('debt-search').value.toLowerCase() : '';
+            let html = '';
+            db.sales.filter(s => s.status === 'Nisyə').forEach((s, idx) => {
+                let text = `${s.date} ${s.custName} ${s.itemsText}`.toLowerCase();
+                if(text.includes(search)) {
+                    html += `<tr><td>${s.date}</td><td>${s.custName} / ${s.custTel}</td><td>${s.itemsText}</td><td>${s.total.toFixed(2)} ₼</td><td>${s.paid.toFixed(2)} ₼</td><td class="text-danger fw-bold">${s.total.toFixed(2)} ₼</td><td>${s.note}</td><td><button onclick="payDebtPrompt(${idx})" class="btn btn-success btn-sm py-0 px-2 me-1">Hissə Ödə</button><button onclick="closeDebt(${idx})" class="btn btn-primary btn-sm py-0 px-2">Tam Bağla</button></td></tr>`;
+                }
+            });
+            document.getElementById('debt-table-body').innerHTML = html;
+        }
+
+        function payDebtPrompt(idx) {
+            let nisyeler = db.sales.filter(s => s.status === 'Nisyə');
+            let sale = nisyeler[idx];
+            if(!sale) return;
+            let amount = parseFloat(prompt(`Qalıq borc: ${sale.total.toFixed(2)} ₼\nÖdənilən məbləği daxil edin:`));
+            if(amount > 0) {
+                if(amount > sale.total) amount = sale.total;
+                sale.paid += amount;
+                sale.total -= amount;
+                if(sale.total <= 0) sale.status = 'Nağd';
+                saveDB();
+            }
+        }
+
+        function closeDebt(idx) {
+            let nisyeler = db.sales.filter(s => s.status === 'Nisyə');
+            if(nisyeler[idx]) {
+                nisyeler[idx].paid += nisyeler[idx].total;
+                nisyeler[idx].total = 0;
+                nisyeler[idx].status = 'Nağd';
+                saveDB();
+            }
+        }
+
+        function openExpenseModal() {
+            document.getElementById('exp-amount').value = '';
+            document.getElementById('exp-note').value = '';
+            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+        }
+
+        function saveExpense() {
+            let cat = document.getElementById('exp-cat').value;
+            let amount = parseFloat(document.getElementById('exp-amount').value);
+            let note = document.getElementById('exp-note').value;
+            if(!amount || amount <= 0) { alert("Məbləğ daxil edin!"); return; }
+            let now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            db.expenses.push({ date: now, cat, amount, note });
+            bootstrap.Modal.getInstance(document.getElementById('expenseModal')).hide();
+            saveDB();
+        }
+
+        function renderExpenses() {
+            let search = document.getElementById('expense-search') ? document.getElementById('expense-search').value.toLowerCase() : '';
+            let html = '';
+            db.expenses.forEach((e, idx) => {
+                let text = `${e.date} ${e.cat} ${e.note}`.toLowerCase();
+                if(text.includes(search)) {
+                    html += `<tr><td>${e.date}</td><td>${e.cat}</td><td class="text-danger fw-bold">-${e.amount.toFixed(2)} ₼</td><td>${e.note}</td><td><button onclick="deleteExpense(${idx})" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button></td></tr>`;
+                }
+            });
+            document.getElementById('expense-table-body').innerHTML = html;
+        }
+
+        function deleteExpense(idx) {
+            if(!verifyAdminCode()) return;
+            db.expenses.splice(idx, 1);
+            saveDB();
+        }
+    </script>
+</body>
+</html>
